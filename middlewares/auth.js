@@ -5,7 +5,7 @@ import { User } from '../models/User.js'
 
 const isAuthenticated = (req, res, next) => {
     const { user } = req.cookies
-    if (!user) return next(new ErrorHandler(401, 'Please Login first'))
+    if (!user) return res.status(401).json({})
     const { _id } = jwt.verify(user, process.env.JWT_SECRET)
     req.user = _id
     next()
