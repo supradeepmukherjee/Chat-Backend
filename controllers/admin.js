@@ -17,7 +17,7 @@ const login = tryCatch(async (req, res, next) => {
         .json({ success: true, msg: 'Welcome Admin!' })
 })
 
-const getUsers = tryCatch(async (req, res) => {
+const getUsers = tryCatch(async (req, res, next) => {
     console.log('get users')
     const rawUsers = await User.find()
         .populate('name chavi')
@@ -45,7 +45,7 @@ const getUsers = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, users })
 })
 
-const getChats = tryCatch(async (req, res) => {
+const getChats = tryCatch(async (req, res, next) => {
     const rawChats = await Chat.find().populate('members admin')
     const chats = await Promise.all(rawChats.map(async ({ name, grpChat, _id, members, admin, chavi }) => {
         const totalMsgs = await Msg.countDocuments({ chat: _id })
@@ -70,7 +70,7 @@ const getChats = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, chats })
 })
 
-const getMsgs = tryCatch(async (req, res) => {
+const getMsgs = tryCatch(async (req, res, next) => {
     const rawMsgs = await Msg.find()
         .populate('sender', 'name chavi')
         .populate('chat', 'grpChat')
@@ -90,7 +90,7 @@ const getMsgs = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, msgs })
 })
 
-const getDashboardStats = tryCatch(async (req, res) => {
+const getDashboardStats = tryCatch(async (req, res, next) => {
     const [userCount, chatCount, grpCount, msgCount] = await Promise.all([
         User.countDocuments(),
         Chat.countDocuments(),
@@ -109,7 +109,7 @@ const getDashboardStats = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, userCount, chatCount, grpCount, msgCount, msgs })
 })
 
-const logOut = tryCatch(async (req, res) => {
+const logOut = tryCatch(async (req, res, next) => {
     res.status(200).cookie('admin', null, { ...cookieOptions, maxAge: 0 }).json({ success: true, msg: 'Logged Out Successfully' })
 })
 

@@ -42,11 +42,11 @@ const getMyProfile = tryCatch(async (req, res, next) => {
     res.status(200).json({ success: true, user })
 })
 
-const logOut = tryCatch(async (req, res) => {
+const logOut = tryCatch(async (req, res, next) => {
     res.status(200).cookie('user', null, { ...cookieOptions, maxAge: 0 }).json({ success: true, msg: 'Logged Out Successfully' })
 })
 
-const searchUser = tryCatch(async (req, res) => {
+const searchUser = tryCatch(async (req, res, next) => {
     const { name } = req.query
     const chats = await Chat.find({
         grpChat: false,
@@ -118,7 +118,7 @@ const acceptRequest = tryCatch(async (req, res, next) => {
     res.status(200).json({ success: true, msg: 'Request Accepted :)' })
 })
 
-const getRequests = tryCatch(async (req, res) => {
+const getRequests = tryCatch(async (req, res, next) => {
     const reqs = await Request.find({ receiver: req.user }).populate('sender', 'name chavi')
     const requests = reqs.map(({ sender, _id }) => ({
         _id,
@@ -131,7 +131,7 @@ const getRequests = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, requests })
 })
 
-const getFriends = tryCatch(async (req, res) => {
+const getFriends = tryCatch(async (req, res, next) => {
     const { id, name } = req.query
     const chats = await Chat.find({
         members: req.user,
@@ -171,24 +171,24 @@ const getFriends = tryCatch(async (req, res) => {
     }
 })
 
-const getOnline = tryCatch(async (req, res) => {
+const getOnline = tryCatch(async (req, res, next) => {
     const rawUsers = await User.find({ online: true }).select('_id')
     const users = rawUsers.map(({ _id }) => _id)
     res.status(200).json({ success: true, users })
 })
 
-const lastSeen = tryCatch(async (req, res) => {
+const lastSeen = tryCatch(async (req, res, next) => {
     const { lastOnline } = await User.findById(req.params.id).select('lastOnline')
     const lastSeen = lastOnline.toLocaleString()
     res.status(200).json({ success: true, lastSeen })
 })
 
-const unreadChats = tryCatch(async (req, res) => {
+const unreadChats = tryCatch(async (req, res, next) => {
     const unread = await User.findById(req.params.id).select('unread')
     res.status(200).json({ success: true, unread })
 })
 
-const markAsRead = tryCatch(async (req, res) => {
+const markAsRead = tryCatch(async (req, res, next) => {
     const user = await User.findById(req.params.id).select('unread')
     if (user?.unread?.length > 0) {
         const readChats = user.unread?.filter(({ chat }) => chat?.toString() !== req.query.chat)
