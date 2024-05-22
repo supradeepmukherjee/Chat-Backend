@@ -207,6 +207,15 @@ const delGroup = tryCatch(async (req, res, next) => {
     if (!chat) return next(new ErrorHandler(404, 'Chat Not Found'))
     if (chat.grpChat && (!chat.admin.includes(req.user))) return next(new ErrorHandler(403, 'You are not allowed to delete this group'))
     if (!chat.grpChat && !chat.members.includes(req.user.toString())) return next(new ErrorHandler(403, 'You are not allowed to delete this chat'))
+    for (let i = 0; i < chat.members.length; i++) {
+        const user = await User.findById(chat.members[i]).select('unread')
+        const index = user.unread.findIndex(({ chat }) => chat.toString() === id)
+        if (index !== -1) {
+            const filtered = user.unread.filter(({ chat }) => chat.toString() !== id.toString())
+            user.unread = filtered
+            await user.save()
+        }
+    }
     const msgsWithAttachments = await Msg.find({
         chat: id,
         attachments: {
